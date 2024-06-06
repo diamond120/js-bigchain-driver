@@ -1,4 +1,4 @@
-require('../config');
+require('../../config');
 
 exports.searchAssets = async (req, res) => {
     const { query } = req.params;

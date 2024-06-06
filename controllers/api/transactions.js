@@ -1,6 +1,6 @@
 const driver = require('bigchaindb-driver');
-const conn = require('../config/bigchaindb');
-require('../config');
+const conn = require('../../config/bigchaindb');
+require('../../config');
 
 exports.createTransaction = async (req, res) => {
     const { data, metadata } = req.params;
