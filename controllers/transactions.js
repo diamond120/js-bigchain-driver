@@ -1,5 +1,6 @@
 const driver = require('bigchaindb-driver');
 const conn = require('../config/bigchaindb');
+require('../config');
 
 const alice = new driver.Ed25519Keypair();
 
@@ -26,7 +27,7 @@ exports.createTransaction = async (req, res) => {
 exports.getTransactionById = async (req, res) => {
     const { id } = req.params;
     try {
-        let response = await fetch(`${API_PATH}transactions/${id}`);
+        let response = await fetch(`${process.env.BIGCHAINDB_SERVER_URL}transactions/${id}`);
         let tx = await response.json();
         res.json(tx);
     } catch (error) {

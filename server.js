@@ -3,10 +3,11 @@ const driver = require('bigchaindb-driver')
 const base58 = require('bs58');
 const crypto = require('crypto');
 const { Ed25519Sha256 } = require('crypto-conditions');
+require('./config')
 
 const app = express();
 
-const API_PATH = 'http://172.104.249.201:9984/api/v1/'
+const API_PATH = process.env.BIGCHAINDB_SERVER_URL
 const alice = new driver.Ed25519Keypair()
 
 const conn = new driver.Connection(API_PATH)

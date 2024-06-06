@@ -1,6 +1,6 @@
 const driver = require('bigchaindb-driver');
+require('../config');
 
-const API_PATH = 'http://172.104.249.201:9984/api/v1/';
-const conn = new driver.Connection(API_PATH);
+const conn = new driver.Connection(process.env.BIGCHAINDB_SERVER_URL);
 
 module.exports = conn;

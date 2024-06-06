@@ -1,4 +1,6 @@
 const express = require('express');
+require('./config');
+
 const app = express();
 
 const transactionsRoutes = require('./routes/transactions');
@@ -9,7 +11,7 @@ app.use('/transactions', transactionsRoutes);
 app.use('/assets', assetsRoutes);
 app.use('/metadata', metadataRoutes);
 
-const PORT = 2466;
+const PORT = process.env.SERVER_PORT || 2466;
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
