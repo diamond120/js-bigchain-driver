@@ -1,21 +1,9 @@
-const driver = require('bigchaindb-driver');
-const conn = require('../../config/bigchaindb');
-require('../../config');
+const { createTransaction, getTransaction } = require('../../utils/bigchaindb');
 
 exports.createTransaction = async (req, res) => {
-    const { data, metadata } = req.params;
+    const { data, metadata } = req.body;
     try {
-        const tx = driver.Transaction.makeCreateTransaction(
-            data,
-            metadata,
-            [ driver.Transaction.makeOutput(
-                    driver.Transaction.makeEd25519Condition(process.env.PUBLIC_KEY))
-            ],
-            process.env.PUBLIC_KEY
-        );
-
-        const txSigned = driver.Transaction.signTransaction(tx, process.env.PRIVATE_KEY);
-        const retrievedTx = await conn.postTransactionCommit(txSigned);
+        const retrievedTx = await createTransaction(data, metadata);
 
         res.json({ message: 'Transaction successfully posted', transactionId: retrievedTx.id });
     } catch (error) {
@@ -23,11 +11,11 @@ exports.createTransaction = async (req, res) => {
     }
 };
 
-exports.getTransactionById = async (req, res) => {
+exports.getTransaction = async (req, res) => {
     const { id } = req.params;
     try {
-        let response = await fetch(`${process.env.BIGCHAINDB_SERVER_URL}transactions/${id}`);
-        let tx = await response.json();
+        const tx = await getTransaction(id);
+
         res.json(tx);
     } catch (error) {
         res.status(500).json({ error: error.message });

@@ -1,8 +1,12 @@
 const express = require('express');
+const bodyParser = require('body-parser')
 
 require('./config');
 
 const app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const transactionsRoutes = require('./routes/api/transactions');
 const assetsRoutes = require('./routes/api/assets');
