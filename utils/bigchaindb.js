@@ -62,28 +62,53 @@ const searchAssets = async (query) => {
 const getTransactionsForTable = async (table) => {
     try {
         const response = await searchMetadata(table);
+        console.log(response.length)
 
         let tx_list = {};
         let blacklist = [];
 
         for(const i in response)
-            if(response[i].metadata.deleted)
+            if(response[i].metadata?.deleted)
                 blacklist.push(response[i].metadata.uid);
+
+        let promise = [];
+        let count = 0;
 
         for(const i in response) {
             if(!response[i].metadata.deleted && !blacklist.includes(response[i].metadata.uid)) {
                 const id = response[i].id;
-                const tx = await getTransaction(id);
 
-                if(!tx_list[response[i].metadata.uid] || tx_list[response[i].metadata.uid].created_at < response[i].metadata.created_at)
-                    tx_list[response[i].metadata.uid] = {
-                        ...tx.asset.data,
-                        ...tx.metadata,
-                    }
+                promise.push(getTransaction(id))
+                count ++
+                // const tx = await getTransaction(id);
+
+                if(count == 500) {
+                    const result = await Promise.all(promise);
+
+                    console.log(result);
+
+                    for(const j in result)
+                        if(!tx_list[result[j].metadata.uid] || tx_list[result[j].metadata.uid].created_at < result[j].metadata.created_at)
+                            tx_list[result[j].metadata.uid] = {
+                                ...result[j].asset.data,
+                                ...result[j].metadata,
+                            }
+                    promise = [];
+                    count = 0;
+                }           
             }
         }
+                
+        let result = await Promise.all(promise);
+        console.log(result);
+        for(const j in result)
+            if(!tx_list[result[j].metadata.uid] || tx_list[result[j].metadata.uid].created_at < result[j].metadata.created_at)
+                tx_list[result[j].metadata.uid] = {
+                    ...result[j].asset.data,
+                    ...result[j].metadata,
+                }
 
-        let result = [];
+        result = [];
         for(const i in tx_list)
             result.push(tx_list[i])
 

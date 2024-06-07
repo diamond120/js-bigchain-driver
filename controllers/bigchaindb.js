@@ -11,7 +11,10 @@ exports.createAsset = async (req, res) => {
         metadata['uid'] = uuidv4();
         metadata['created_at'] = Math.floor(Date.now() / 1000);
 
-        await createTransaction(data, metadata);
+        // console.log(object, data)
+
+        const tx = await createTransaction(data, metadata);
+        console.log(tx.id);
 
         res.json({ message: 'Success' });
     } catch (error) {
