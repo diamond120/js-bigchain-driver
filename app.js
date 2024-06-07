@@ -17,7 +17,7 @@ app.use('/api/transactions', transactionsRoutes);
 app.use('/api/assets', assetsRoutes);
 app.use('/api/metadata', metadataRoutes);
 
-app.use('/bigchaindb', bigchaindbRoutes)
+app.use('/', bigchaindbRoutes)
 
 const PORT = process.env.SERVER_PORT || 2466;
 app.listen(PORT, () => {
