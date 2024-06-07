@@ -53,7 +53,7 @@ exports.countAsset = async (req, res) => {
     try {
         let response = await queryTransaction(object, where, orderBy, limit);
         
-        res.json({ message: 'Transaction Count: ', data: response.length()});
+        res.json({ message: 'Transaction Count: ', data: response.length});
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -62,11 +62,13 @@ exports.countAsset = async (req, res) => {
 exports.deleteAsset = async (req, res) => {
     const { object, where, orderBy, limit } = req.body;
     try {
-        let tx_list = await queryTransaction(object, where, orderBy, limit);
+        let response = await queryTransaction(object, where, orderBy, limit);
+        let metadata = response[i].metadata
+        metadata.deleted = true;
+        let tx_list = [];
 
-        // for(const i in tx_list) {
-        //     tx_list[i]
-        // }
+        for(const i in response)
+            tx_list.push(await createTransaction(response[i].data, metadata));
 
         res.json({ message: 'Transaction successfully posted', transactionId: tx_list });
     } catch (error) {
