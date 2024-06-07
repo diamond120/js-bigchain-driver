@@ -96,10 +96,10 @@ const getTransactionsForTable = async (table) => {
 
 const whereHandlers = {
     '==' : operand => value => Object.keys(operand).every(key => operand[key] == value[key]),
-    'like' : operand => value => Object.keys(operand).every(key => value[key].includes(operand[key])),
+    'like' : operand => value => Object.keys(operand).every(key => value[key]?.includes(operand[key])),
     '!=' : operand => value => !(Object.keys(operand).every(key => operand[key] == value[key])),
-    'in' : operand => value => Object.keys(operand).every(key => operand[key].includes(value[key])),
-    '!in' : operand => value => !(Object.keys(operand).every(key => operand[key].includes(value[key]))),
+    'in' : operand => value => Object.keys(operand).every(key => operand[key]?.includes(value[key])),
+    '!in' : operand => value => !(Object.keys(operand).every(key => operand[key]?.includes(value[key]))),
     'between' : operand => value => Object.keys(operand).every(key => value[key] >= operand[key][0] && value[key] <= operand[key][1]),
 }
 
@@ -128,7 +128,6 @@ const arrayMerge = async (connector, array1, array2) => {
 }
 
 const querySolver = async (tx_list, where) => {
-    console.log(tx_list)
     if(where['operator'])
         return tx_list.filter(whereHandlers[where.operator](where.operand));
 

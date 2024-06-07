@@ -41,8 +41,7 @@ exports.updateAsset = async (req, res) => {
                 asset[key] = data[key];
             // Add Update logic here
 
-            tx = await createTransaction(asset, metadata);
-            tx_list.push(tx);
+            await createTransaction(asset, metadata);
         }
 
         res.json({ message: 'Success' });
@@ -52,9 +51,11 @@ exports.updateAsset = async (req, res) => {
 };
 
 exports.getAsset = async (req, res) => {
-    const { object, where, orderBy, limit } = req.body;
+    let { object, where, orderBy, limit } = req.query;
     try {
-        console.log(req.body);
+        limit = parseInt(limit);
+        console.log(object, where, orderBy, limit);
+
         let response = await queryTransaction(object, where, orderBy, limit);
         
         res.json({ message: 'Transaction successfully fetched', data: response });
@@ -64,8 +65,9 @@ exports.getAsset = async (req, res) => {
 };
 
 exports.countAsset = async (req, res) => {
-    const { object, where, orderBy, limit } = req.body;
+    let { object, where, orderBy, limit } = req.query;
     try {
+        limit = parseInt(limit)
         let response = await queryTransaction(object, where, orderBy, limit);
         
         res.json({ message: 'Transaction Count: ', data: response.length});
@@ -74,8 +76,24 @@ exports.countAsset = async (req, res) => {
     }
 };
 
+exports.sumAsset = async (req, res) => {
+    let { object, where, orderBy, limit, column } = req.query;
+    try {
+        limit = parseInt(limit)
+        let response = await queryTransaction(object, where, orderBy, limit);
+
+        let sum = 0;
+        for(const element of response)
+            sum = sum + parseInt(element[column]);
+        
+        res.json({ message: 'Transaction Count: ', data: sum});
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 exports.deleteAsset = async (req, res) => {
-    const { object, where, orderBy, limit } = req.body;
+    const { object, where, orderBy, limit } = req.query;
     try {
         let response = await queryTransaction(object, where, orderBy, limit);
 
