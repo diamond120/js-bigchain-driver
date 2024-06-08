@@ -63,6 +63,8 @@ const getTransactionsForTable = async (table) => {
     try {
         const response = await searchMetadata(table);
 
+        console.log(response);
+
         let tx_list = {};
         let blacklist = [];
 
@@ -74,7 +76,7 @@ const getTransactionsForTable = async (table) => {
         let count = 0;
 
         for(const i in response) {
-            if(!response[i].metadata.deleted && !blacklist.includes(response[i].metadata.id)) {
+            if(!response[i].metadata?.deleted && !blacklist.includes(response[i].metadata.id)) {
                 const id = response[i].id;
 
                 promise.push(getTransaction(id))
