@@ -62,7 +62,6 @@ const searchAssets = async (query) => {
 const getTransactionsForTable = async (table) => {
     try {
         const response = await searchMetadata(table);
-        console.log(response.length)
 
         let tx_list = {};
         let blacklist = [];
@@ -85,8 +84,6 @@ const getTransactionsForTable = async (table) => {
                 if(count == 500) {
                     const result = await Promise.all(promise);
 
-                    console.log(result);
-
                     for(const j in result)
                         if(!tx_list[result[j].metadata.uid] || tx_list[result[j].metadata.uid].created_at < result[j].metadata.created_at)
                             tx_list[result[j].metadata.uid] = {
@@ -100,7 +97,6 @@ const getTransactionsForTable = async (table) => {
         }
                 
         let result = await Promise.all(promise);
-        console.log(result);
         for(const j in result)
             if(!tx_list[result[j].metadata.uid] || tx_list[result[j].metadata.uid].created_at < result[j].metadata.created_at)
                 tx_list[result[j].metadata.uid] = {

@@ -11,8 +11,6 @@ exports.createAsset = async (req, res) => {
         metadata['uid'] = uuidv4();
         metadata['created_at'] = Math.floor(Date.now() / 1000);
 
-        // console.log(object, data)
-
         const tx = await createTransaction(data, metadata);
         console.log(tx.id);
 
@@ -60,7 +58,6 @@ exports.getAsset = async (req, res) => {
     let { object, where, orderBy, limit } = req.query;
     try {
         limit = parseInt(limit);
-        console.log(object, where, orderBy, limit);
 
         let response = await queryTransaction(object, where, orderBy, limit);
         
