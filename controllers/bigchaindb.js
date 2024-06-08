@@ -16,7 +16,10 @@ exports.createAsset = async (req, res) => {
         const tx = await createTransaction(data, metadata);
         console.log(tx.id);
 
-        res.json({ message: 'Success' });
+        res.json({ message: 'Success', data: {
+            ...tx.asset.data,
+            ...tx.metadata
+        }});
     } catch (error) {
         res.status(500).json({ error: error.message });
     } 
