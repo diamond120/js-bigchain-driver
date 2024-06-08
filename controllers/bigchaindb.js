@@ -8,7 +8,7 @@ exports.createAsset = async (req, res) => {
         let metadata = {
             "object": object,
         };
-        metadata['uid'] = uuidv4();
+        metadata['id'] = uuidv4();
         metadata['created_at'] = Math.floor(Date.now() / 1000);
 
         const tx = await createTransaction(data, metadata);
@@ -31,12 +31,12 @@ exports.updateAsset = async (req, res) => {
         for(const i in response) {
             let metadata = {
                 "object": response[i].object,
-                "uid": response[i].uid
+                "id": response[i].id
             };
             let asset = {}
 
             for(const key in response[i])
-                if(key != "object" && key != "uid" && key != "created_at")
+                if(key != "object" && key != "id" && key != "created_at")
                     asset[key] = response[i][key];
 
             metadata['created_at'] = Math.floor(Date.now() / 1000);
@@ -103,7 +103,7 @@ exports.deleteAsset = async (req, res) => {
         for(const i in response) {
             let metadata = {
                 "object": response[i].object,
-                "uid": response[i].uid
+                "id": response[i].id
             };
             metadata["deleted"] = true;
             metadata['created_at'] = Math.floor(Date.now() / 1000);
