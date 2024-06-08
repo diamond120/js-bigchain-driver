@@ -68,13 +68,13 @@ const getTransactionsForTable = async (table) => {
 
         for(const i in response)
             if(response[i].metadata?.deleted)
-                blacklist.push(response[i].metadata.uid);
+                blacklist.push(response[i].metadata.id);
 
         let promise = [];
         let count = 0;
 
         for(const i in response) {
-            if(!response[i].metadata.deleted && !blacklist.includes(response[i].metadata.uid)) {
+            if(!response[i].metadata.deleted && !blacklist.includes(response[i].metadata.id)) {
                 const id = response[i].id;
 
                 promise.push(getTransaction(id))
@@ -85,8 +85,8 @@ const getTransactionsForTable = async (table) => {
                     const result = await Promise.all(promise);
 
                     for(const j in result)
-                        if(!tx_list[result[j].metadata.uid] || tx_list[result[j].metadata.uid].created_at < result[j].metadata.created_at)
-                            tx_list[result[j].metadata.uid] = {
+                        if(!tx_list[result[j].metadata.id] || tx_list[result[j].metadata.id].created_at < result[j].metadata.created_at)
+                            tx_list[result[j].metadata.id] = {
                                 ...result[j].asset.data,
                                 ...result[j].metadata,
                             }
@@ -98,8 +98,8 @@ const getTransactionsForTable = async (table) => {
                 
         let result = await Promise.all(promise);
         for(const j in result)
-            if(!tx_list[result[j].metadata.uid] || tx_list[result[j].metadata.uid].created_at < result[j].metadata.created_at)
-                tx_list[result[j].metadata.uid] = {
+            if(!tx_list[result[j].metadata.id] || tx_list[result[j].metadata.id].created_at < result[j].metadata.created_at)
+                tx_list[result[j].metadata.id] = {
                     ...result[j].asset.data,
                     ...result[j].metadata,
                 }
@@ -140,11 +140,11 @@ const arrayMerge = async (connector, array1, array2) => {
 
     if(connector == "or")
         for(const key of array)
-            response[key['uid']] = array;
+            response[key['id']] = array;
     else
         for(const key of array2)
-            if(array1[key['uid']])
-                response[key['uid']] = array2;
+            if(array1[key['id']])
+                response[key['id']] = array2;
     return response;
 }
 
