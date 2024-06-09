@@ -5,7 +5,7 @@ require('../config');
 exports.createAsset = async (req, res) => {
     const { object, data } = req.body;
     try {
-        console.log(object, data)
+        // console.log(object, data)
         let metadata = {
             "object": object,
         };

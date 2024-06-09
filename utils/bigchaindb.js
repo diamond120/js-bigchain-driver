@@ -63,8 +63,6 @@ const getTransactionsForTable = async (table) => {
     try {
         const response = await searchMetadata(table);
 
-        console.log(response);
-
         let tx_list = {};
         let blacklist = [];
 
