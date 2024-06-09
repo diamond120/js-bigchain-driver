@@ -9,8 +9,19 @@ exports.createAsset = async (req, res) => {
         let metadata = {
             "object": object,
         };
-        metadata['id'] = uuidv4();
-        metadata['created_at'] = Math.floor(Date.now() / 1000);
+        if(data['id']) {
+            metadata['id'] = data['id']
+            delete data['id'];
+        }
+        else
+            metadata['id'] = uuidv4();
+        
+        if(data['created_at']) {
+            metadata['created_at'] = data['created_at']
+            delete data['created_at'];
+        }
+        else
+            metadata['created_at'] = Math.floor(Date.now() / 1000);
 
         const tx = await createTransaction(data, metadata);
         console.log(tx.id);
