@@ -5,7 +5,7 @@ require('../config');
 exports.createAsset = async (req, res) => {
     const { object, data } = req.body;
     try {
-        // console.log(object, data)
+        console.log("Create Asset Request: ", object, data)
         let metadata = {
             "object": object,
         };
@@ -38,6 +38,7 @@ exports.createAsset = async (req, res) => {
 exports.updateAsset = async (req, res) => {
     const { object, where, orderBy, limit, data } = req.body;
     try {
+        console.log("Update Asset Request: ", object, where, orderBy, limit, data)
         let response = await queryTransaction(object, where, orderBy, limit);
 
         for(const i in response) {
@@ -69,8 +70,9 @@ exports.updateAsset = async (req, res) => {
 exports.getAsset = async (req, res) => {
     let { object, where, orderBy, limit } = req.query;
     try {
-        limit = parseInt(limit);
+        console.log("Get Asset Request: ", object, where, orderBy, limit)
 
+        if(limit) limit = parseInt(limit);
         let response = await queryTransaction(object, where, orderBy, limit);
         
         res.json({ message: 'Transaction successfully fetched', data: response });
@@ -82,7 +84,9 @@ exports.getAsset = async (req, res) => {
 exports.countAsset = async (req, res) => {
     let { object, where, orderBy, limit } = req.query;
     try {
-        limit = parseInt(limit)
+        console.log("Count Asset Request: ", object, where, orderBy, limit)
+
+        if(limit) limit = parseInt(limit)
         let response = await queryTransaction(object, where, orderBy, limit);
         
         res.json({ message: 'Transaction Count: ', data: response.length});
@@ -94,6 +98,8 @@ exports.countAsset = async (req, res) => {
 exports.sumAsset = async (req, res) => {
     let { object, where, orderBy, limit, column } = req.query;
     try {
+        console.log("Sum Asset Request: ", object, where, orderBy, limit, column)
+
         limit = parseInt(limit)
         let response = await queryTransaction(object, where, orderBy, limit);
 
@@ -110,6 +116,7 @@ exports.sumAsset = async (req, res) => {
 exports.deleteAsset = async (req, res) => {
     const { object, where, orderBy, limit } = req.query;
     try {
+        console.log("Delete Asset Request: ", object, where, orderBy, limit)
         let response = await queryTransaction(object, where, orderBy, limit);
 
         for(const i in response) {
