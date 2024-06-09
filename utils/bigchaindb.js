@@ -70,13 +70,13 @@ const getTransactionsForTable = async (table) => {
 
         for(const i in response)
             if(response[i].metadata?.deleted)
-                blacklist.push(response[i].metadata.id);
+                blacklist.push(response[i].metadata?.id);
 
         let promise = [];
         let count = 0;
 
         for(const i in response) {
-            if(!response[i].metadata?.deleted && !blacklist.includes(response[i].metadata.id)) {
+            if(!response[i].metadata?.deleted && !blacklist.includes(response[i].metadata?.id)) {
                 const id = response[i].id;
 
                 promise.push(getTransaction(id))
@@ -87,9 +87,9 @@ const getTransactionsForTable = async (table) => {
                     const result = await Promise.all(promise);
 
                     for(const j in result)
-                        if(!tx_list[result[j].metadata.id] || tx_list[result[j].metadata.id].created_at < result[j].metadata.created_at)
-                            tx_list[result[j].metadata.id] = {
-                                ...result[j].asset.data,
+                        if(!tx_list[result[j].metadata?.id] || tx_list[result[j].metadata?.id].created_at < result[j].metadata?.created_at)
+                            tx_list[result[j].metadata?.id] = {
+                                ...result[j].asset?.data,
                                 ...result[j].metadata,
                             }
                     promise = [];
@@ -100,9 +100,9 @@ const getTransactionsForTable = async (table) => {
                 
         let result = await Promise.all(promise);
         for(const j in result)
-            if(!tx_list[result[j].metadata.id] || tx_list[result[j].metadata.id].created_at < result[j].metadata.created_at)
-                tx_list[result[j].metadata.id] = {
-                    ...result[j].asset.data,
+            if(!tx_list[result[j].metadata?.id] || tx_list[result[j].metadata?.id].created_at < result[j].metadata?.created_at)
+                tx_list[result[j].metadata?.id] = {
+                    ...result[j].asset?.data,
                     ...result[j].metadata,
                 }
 
