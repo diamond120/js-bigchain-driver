@@ -168,6 +168,8 @@ const queryTransaction = async (table, where, orderBy, limit) => {
     try {
         let tx_list = await getTransactionsForTable(table);
 
+        if(!tx_list.length) return tx_list;
+
         if(where)
             tx_list = await querySolver(tx_list, where);
         if(orderBy && orderBy.length)
