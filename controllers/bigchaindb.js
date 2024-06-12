@@ -8,8 +8,10 @@ exports.createAsset = async (req, res) => {
     let { object, data } = req.body;
     
     // Check Request Type
-    if(typeof object != "string" || typeof data != "object")
-        res.json({ message: 'Request type Failed', data: {}});
+    // if(typeof object != "string" || typeof data != "object") {
+    //     res.json({ message: 'Request type Failed', data: {}});
+    //     return;
+    // }
 
     console.log("Create Asset Request: ", object, JSON.stringify(data))
 
@@ -39,11 +41,15 @@ exports.updateAsset = async (req, res) => {
     if(typeof limit == "string") limit = parseInt(limit);
 
     // Check Request Type
-    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof data != "object")
-        res.json({ message: 'Request type Failed', data: {}});
+    // if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof data != "object") {
+    //     res.json({ message: 'Request type Failed', data: {}});
+    //     return;
+    // }
 
-    if(orderBy == "ASC" || orderBy=="DESC")
-        res.json({ message: 'Order By should be ASC or DESC', data: {}});
+    // if(orderBy == "ASC" || orderBy=="DESC") {
+    //     res.json({ message: 'Order By should be ASC or DESC', data: {}});
+    //     return;
+    // }
 
     console.log("Update Asset Request: ", object, JSON.stringify(where), orderBy, limit, JSON.stringify(data))
 
@@ -83,11 +89,15 @@ exports.getAsset = async (req, res) => {
     if(typeof offset == "string") offset = parseInt(offset);
 
     // Check Request Type
-    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number")
-        res.json({ message: 'Request type Failed', data: {}});
+    // if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number") {
+    //     res.json({ message: 'Request type Failed', data: {}});
+    //     return;
+    // }
 
-    if(orderBy == "ASC" || orderBy=="DESC")
-        res.json({ message: 'Order By should be ASC or DESC', data: {}});
+    // if(orderBy == "ASC" || orderBy=="DESC") {
+    //     res.json({ message: 'Order By should be ASC or DESC', data: {}});
+    //     return;
+    // }
 
     console.log("Get Asset Request: ", object, JSON.stringify(where), orderBy, limit)
 
@@ -106,11 +116,15 @@ exports.countAsset = async (req, res) => {
     if(typeof limit == "string") limit = parseInt(limit);
 
     // Check Request Type
-    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number")
-        res.json({ message: 'Request type Failed', data: {}});
+    // if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number") {
+    //     res.json({ message: 'Request type Failed', data: {}});
+    //     return;
+    // }
 
-    if(orderBy == "ASC" || orderBy=="DESC")
-        res.json({ message: 'Order By should be ASC or DESC', data: {}});
+    // if(orderBy == "ASC" || orderBy=="DESC") {
+    //     res.json({ message: 'Order By should be ASC or DESC', data: {}});
+    //     return;
+    // }
 
     console.log("Count Asset Request: ", object, JSON.stringify(where), orderBy, limit)
 
@@ -127,11 +141,15 @@ exports.sumAsset = async (req, res) => {
     if(typeof limit == "string") limit = parseInt(limit);
 
     // Check Request Type
-    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof column != "string")
-        res.json({ message: 'Request type Failed', data: {}});
+    // if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof column != "string") {
+    //     res.json({ message: 'Request type Failed', data: {}});
+    //     return;
+    // }
 
-    if(orderBy == "ASC" || orderBy=="DESC")
-        res.json({ message: 'Order By should be ASC or DESC', data: {}});
+    // if(orderBy == "ASC" || orderBy=="DESC") {
+    //     res.json({ message: 'Order By should be ASC or DESC', data: {}});
+    //     return;
+    // }
 
     console.log("Sum Asset Request: ", object, JSON.stringify(where), orderBy, limit, column)
 
@@ -153,11 +171,15 @@ exports.deleteAsset = async (req, res) => {
     if(typeof limit == "string") limit = parseInt(limit);
 
     // Check Request Type
-    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number")
-        res.json({ message: 'Request type Failed', data: {}});
+    // if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number") {
+    //     res.json({ message: 'Request type Failed', data: {}});
+    //     return;
+    // }
 
-    if(orderBy == "ASC" || orderBy=="DESC")
-        res.json({ message: 'Order By should be ASC or DESC', data: {}});
+    // if(orderBy == "ASC" || orderBy=="DESC") {
+    //     res.json({ message: 'Order By should be ASC or DESC', data: {}});
+    //     return;
+    // }
 
     console.log("Delete Asset Request: ", object, JSON.stringify(where), orderBy, limit)
 
