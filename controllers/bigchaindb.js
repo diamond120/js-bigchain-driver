@@ -1,143 +1,177 @@
 const { v4: uuidv4 } = require('uuid');
 const { createTransaction, queryTransaction } = require('../utils/bigchaindb');
+const defaultValue = require('../config/default.json');
+
 require('../config');
 
 exports.createAsset = async (req, res) => {
-    const { object, data } = req.body;
-    try {
-        console.log("Create Asset Request: ", object, JSON.stringify(data))
-        let metadata = {
-            "object": object,
-        };
-        if(data['id']) {
-            metadata['id'] = data['id']
-            delete data['id'];
-        }
-        else
-            metadata['id'] = uuidv4();
-        
-        if(data['created_at']) {
-            metadata['created_at'] = data['created_at']
-            delete data['created_at'];
-        }
-        else
-            metadata['created_at'] = Math.floor(Date.now() / 1000);
+    let { object, data } = req.body;
+    
+    // Check Request Type
+    if(typeof object != "string" || typeof data != "object")
+        res.json({ message: 'Request type Failed', data: {}});
 
-        const tx = await createTransaction(data, metadata);
-        console.log(tx.id);
+    console.log("Create Asset Request: ", object, JSON.stringify(data))
 
-        res.json({ message: 'Success', data: {
-            ...tx.asset.data,
-            ...tx.metadata
-        }});
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    } 
+    // Define Metadata
+    let metadata = {
+        "object": object,
+    };
+    metadata['id'] = uuidv4();
+    metadata['created_at'] = Math.floor(Date.now() / 1000);
+
+    // Add Default Value
+    data = { ...data, ...defaultValue[object] }
+
+    // Send Create Request
+    const tx = await createTransaction(data, metadata);
+    console.log(tx.id);
+
+    res.json({ message: 'Success', data: {
+        ...tx.asset.data,
+        ...tx.metadata
+    }});
 };
 
 exports.updateAsset = async (req, res) => {
-    const { object, where, orderBy, limit, data } = req.body;
-    try {
-        if(where) where = JSON.parse(where);
-        console.log("Update Asset Request: ", object, where, orderBy, limit, data)
-        let response = await queryTransaction(object, where, orderBy, limit);
+    let { object, where, orderBy, limit, data } = req.body;
+    if(typeof where == "string") where = JSON.parse(where);
+    if(typeof limit == "string") limit = parseInt(limit);
 
-        for(const i in response) {
-            let metadata = {
-                "object": response[i].object,
-                "id": response[i].id
-            };
-            let asset = {}
+    // Check Request Type
+    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof data != "object")
+        res.json({ message: 'Request type Failed', data: {}});
 
-            for(const key in response[i])
-                if(key != "object" && key != "id" && key != "created_at")
-                    asset[key] = response[i][key];
+    if(orderBy == "ASC" || orderBy=="DESC")
+        res.json({ message: 'Order By should be ASC or DESC', data: {}});
 
-            metadata['created_at'] = Math.floor(Date.now() / 1000);
+    console.log("Update Asset Request: ", object, JSON.stringify(where), orderBy, limit, JSON.stringify(data))
 
-            for(const key in data)
-                asset[key] = data[key];
-            // Add Update logic here
+    // Filter Transactions with condition
+    let list = await queryTransaction(object, where, orderBy, limit);
 
-            await createTransaction(asset, metadata);
+    for(const tx of list) {
+        let metadata = {}, asset = {};
+
+        // Define Assets & Metadata
+        metadata['created_at'] = Math.floor(Date.now() / 1000);
+
+        for(const key in tx) {
+            if(key == "object" || key == "id" || key == "created_at")
+                metadata[key] = tx[key];
+            else
+                asset[key] = tx[key];
         }
 
-        res.json({ message: 'Success' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    } 
+        // Update data
+        for(const key in data)
+            asset[key] = data[key];
+
+        // Send Create Request
+        await createTransaction(asset, metadata);
+    }
+
+    res.json({ message: 'Success' });
 };
 
 exports.getAsset = async (req, res) => {
     let { object, where, orderBy, limit } = req.query;
-    try {
-        // let timestamp = Date.now();
-        if(where) where = JSON.parse(where);
-        console.log("Get Asset Request: ", object, where, orderBy, limit)
+    // let timestamp = Date.now();
+    
+    if(typeof where == "string") where = JSON.parse(where);
+    if(typeof limit == "string") limit = parseInt(limit);
 
-        if(limit) limit = parseInt(limit);
-        let response = await queryTransaction(object, where, orderBy, limit);
+    // Check Request Type
+    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof data != "object")
+        res.json({ message: 'Request type Failed', data: {}});
 
-        // console.log(Date.now() - timestamp);
-        
-        res.json({ message: 'Transaction successfully fetched', data: response });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    if(orderBy == "ASC" || orderBy=="DESC")
+        res.json({ message: 'Order By should be ASC or DESC', data: {}});
+
+    console.log("Get Asset Request: ", object, JSON.stringify(where), orderBy, limit)
+
+    // Send Query Request
+    let list = await queryTransaction(object, where, orderBy, limit);
+
+    // console.log(Date.now() - timestamp);
+    
+    res.json({ message: 'Transaction successfully fetched', data: list });
 };
 
 exports.countAsset = async (req, res) => {
     let { object, where, orderBy, limit } = req.query;
-    try {
-        if(where) where = JSON.parse(where);
-        console.log("Count Asset Request: ", object, where, orderBy, limit)
+    
+    if(typeof where == "string") where = JSON.parse(where);
+    if(typeof limit == "string") limit = parseInt(limit);
 
-        if(limit) limit = parseInt(limit)
-        let response = await queryTransaction(object, where, orderBy, limit);
+    // Check Request Type
+    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof data != "object")
+        res.json({ message: 'Request type Failed', data: {}});
+
+    if(orderBy == "ASC" || orderBy=="DESC")
+        res.json({ message: 'Order By should be ASC or DESC', data: {}});
+
+    console.log("Count Asset Request: ", object, JSON.stringify(where), orderBy, limit)
+
+    // Send Query Request
+    let list = await queryTransaction(object, where, orderBy, limit);
         
-        res.json({ message: 'Transaction Count: ', data: response.length});
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    res.json({ message: 'Transaction Count: ', data: list.length});
 };
 
 exports.sumAsset = async (req, res) => {
     let { object, where, orderBy, limit, column } = req.query;
-    try {
-        if(where) where = JSON.parse(where);
-        console.log("Sum Asset Request: ", object, where, orderBy, limit, column)
+    
+    if(typeof where == "string") where = JSON.parse(where);
+    if(typeof limit == "string") limit = parseInt(limit);
 
-        limit = parseInt(limit)
-        let response = await queryTransaction(object, where, orderBy, limit);
+    // Check Request Type
+    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof data != "object")
+        res.json({ message: 'Request type Failed', data: {}});
 
-        let sum = 0;
-        for(const element of response)
-            sum = sum + parseInt(element[column]);
-        
-        res.json({ message: 'Transaction Count: ', data: sum});
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    if(orderBy == "ASC" || orderBy=="DESC")
+        res.json({ message: 'Order By should be ASC or DESC', data: {}});
+
+    console.log("Sum Asset Request: ", object, JSON.stringify(where), orderBy, limit, column)
+
+    // Send Query Request
+    let list = await queryTransaction(object, where, orderBy, limit);
+
+    // Sum Column data
+    let sum = 0;
+    for(const element of list)
+        sum = sum + parseInt(element[column]);
+    
+    res.json({ message: 'Transaction Count: ', data: sum});
 };
 
 exports.deleteAsset = async (req, res) => {
-    const { object, where, orderBy, limit } = req.query;
-    try {
-        console.log("Delete Asset Request: ", object, where, orderBy, limit)
-        let response = await queryTransaction(object, where, orderBy, limit);
+    let { object, where, orderBy, limit } = req.query;
+    
+    if(typeof where == "string") where = JSON.parse(where);
+    if(typeof limit == "string") limit = parseInt(limit);
 
-        for(const i in response) {
-            let metadata = {
-                "object": response[i].object,
-                "id": response[i].id
-            };
-            metadata["deleted"] = true;
-            metadata['created_at'] = Math.floor(Date.now() / 1000);
-            await createTransaction(null, metadata);
-        }
+    // Check Request Type
+    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof data != "object")
+        res.json({ message: 'Request type Failed', data: {}});
 
-        res.json({ message: 'Success' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    if(orderBy == "ASC" || orderBy=="DESC")
+        res.json({ message: 'Order By should be ASC or DESC', data: {}});
+
+    console.log("Delete Asset Request: ", object, JSON.stringify(where), orderBy, limit)
+
+    // Send Query Request
+    let list = await queryTransaction(object, where, orderBy, limit);
+
+    // Delete assets
+    for(const element of list) {
+        let metadata = {
+            "object": element.object,
+            "id": element.id
+        };
+        metadata['created_at'] = null;
+        await createTransaction(null, metadata);
     }
+
+    res.json({ message: 'Success' });
 };

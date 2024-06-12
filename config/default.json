@@ -1,0 +1,147 @@
+{
+    "activities": {
+        "extra": null
+    },
+    "email_templates": {
+        "greeting": null,
+        "regards": null,
+        "notify": 1
+    },
+    "global_metas": {
+        "pid": null,
+        "value": null,
+        "extra": null
+    },
+    "ico_metas": {
+        "status": 1
+    },
+    "ico_stages": {
+        "start_date": null,
+        "end_date": null,
+        "min_purchase": "0",
+        "max_purchase": "0",
+        "soft_cap": "0",
+        "hard_cap": "0",
+        "private": "0",
+        "user_panel_display": "0",
+        "sales_token": "0",
+        "sales_amount": "0",
+        "status": "active"
+    },
+    "kycs": {
+        "lastName": null,
+        "phone": null,
+        "dob": null,
+        "gender": null,
+        "address1": null,
+        "address2": null,
+        "city": null,
+        "state": null,
+        "zip": null,
+        "country": null,
+        "telegram": "",
+        "documentType": "",
+        "document": "",
+        "document2": "",
+        "document3": "",
+        "walletName": "",
+        "walletAddress": "",
+        "notes": null,
+        "reviewedBy": "0",
+        "reviewedAt": null,
+        "status": "pending"  
+    },
+    "languages": {
+        "short": null,
+        "status": "1" 
+    },
+    "migrations": {},
+    "pages": {
+        "meta_keyword": null,
+        "meta_description": null,
+        "meta_index": "1",
+        "external_link": null,
+        "status": "active",
+        "lang": "en",
+        "public": "0"
+    },
+    "password_resets": {},
+    "payment_methods": {
+        "description": null,
+        "status": "active"
+    },
+    "referrals": {
+        "user_id": null,
+        "user_bonus": null,
+        "refer_by": null,
+        "refer_bonus": null,
+        "meta_data": null
+    },
+    "settings": {
+        "value": null
+    },
+    "transactions": {
+        "tokens": "0",
+        "bonus_on_base": "0",
+        "bonus_on_token": "0",
+        "total_bonus": "0",
+        "amount": null,
+        "receive_amount": "0",
+        "receive_currency": null,
+        "base_amount": null,
+        "base_currency": null,
+        "base_currency_rate": null,
+        "currency": null,
+        "currency_rate": null,
+        "all_currency_rate": null,
+        "wallet_address": null,
+        "payment_method": null,
+        "payment_id": "",
+        "payment_to": null,
+        "checked_by": null,
+        "added_by": null,
+        "checked_time": null,
+        "details": "",
+        "extra": null,
+        "status": "",
+        "dist": "0",
+        "refund": null
+    },
+    "translates": {
+        "text": null,
+        "pages": "global",
+        "group": "system",
+        "panel": "any",
+        "load": "0"
+    },
+    "users": {
+        "email_verified_at": null,
+        "status": "active",
+        "registerMethod": "Email",
+        "social_id": null,
+        "mobile": null,
+        "dateOfBirth": null,
+        "nationality": null,
+        "walletType": null,
+        "walletAddress": null,
+        "role": "user",
+        "contributed": null,
+        "tokenBalance": null,
+        "referral": null,
+        "referralInfo": null,
+        "google2fa": "0",
+        "google2fa_secret": null,
+        "type": "main",
+        "remember_token": null
+    },
+    "user_metas": {
+        "notify_admin": "0",
+        "newsletter": "1",
+        "unusual": "1",
+        "save_activity": true,
+        "pwd_chng": true,
+        "pwd_temp": null,
+        "email_expire": null,
+        "email_token": null
+    }
+}
