@@ -49,7 +49,7 @@ const searchMetadata = async (query) => {
 
 const searchAssets = async (query) => {
     try {
-        let response = await fetch(`${process.env.BIGCHAINDB_SERVER_URL}assets/?search=${{ $text: { $search: "Berlin" } }}`);
+        let response = await fetch(`${process.env.BIGCHAINDB_SERVER_URL}assets/?search=${query}`);
         let list = await response.json();
 
         return list;
@@ -61,7 +61,10 @@ const searchAssets = async (query) => {
 
 const getTransactionsForTable = async (table) => {
     try {
+        // let timestamp = Date.now();
         const response = await searchMetadata(table);
+        // console.log('serach metadata', Date.now() - timestamp);
+        // timestamp = Date.now();
 
         let tx_list = {};
         let blacklist = [];
@@ -108,6 +111,7 @@ const getTransactionsForTable = async (table) => {
         for(const i in tx_list)
             result.push(tx_list[i])
 
+        // console.log('Get Table', Date.now() - timestamp);
         return result;
     } catch (error) {
         console.log(error);
@@ -145,29 +149,35 @@ const arrayMerge = async (connector, array1, array2) => {
         for(const key of array2)
             if(array1[key['id']])
                 response[key['id']] = array2;
-    return response;
+    return Object.values(response);
 }
 
 const querySolver = async (tx_list, where) => {
-    if(where['operator'])
-        return tx_list.filter(whereHandlers[where.operator](where.operand));
-
-    const connector = where['connector'];
-    let result = []
-
-    for(const query of where['queries']) {
-        const tx = await querySolver(tx_list, query);
-
-        if(!result.length) result = tx;
-        else result = await arrayMerge(connector, result, tx);
+    try {
+        if(where['operator'])
+            return tx_list.filter(whereHandlers[where.operator](where.operand));
+        if(where['connector']) {
+            const connector = where['connector'];
+            let result = []
+        
+            for(const query of where['queries']) {
+                const tx = await querySolver(tx_list, query);
+        
+                if(!result.length) result = tx;
+                else result = await arrayMerge(connector, result, tx);
+            }
+            return result;
+        }
+    } catch (e) {
+        console.log("Error in Query Solver, " + e);
+        return tx_list;
     }
-    return result;
 }
 
 const queryTransaction = async (table, where, orderBy, limit) => {
-    try {
-        let tx_list = await getTransactionsForTable(table);
+    let tx_list = await getTransactionsForTable(table);
 
+    try {
         if(!tx_list.length) return tx_list;
 
         if(where)
@@ -178,9 +188,9 @@ const queryTransaction = async (table, where, orderBy, limit) => {
             tx_list = tx_list.slice(0, limit);
 
         return tx_list;
-    } catch (error) {
-        console.log(error);
-        return "Error in Filter Transaction";
+    } catch (e) {
+        console.log("Error in query transaction, " + e);
+        return tx_list;
     }
 }
 
