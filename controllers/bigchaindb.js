@@ -86,7 +86,7 @@ exports.getAsset = async (req, res) => {
     
     if(typeof where == "string") where = JSON.parse(where);
     if(typeof limit == "string") limit = parseInt(limit);
-    if(typeof offset == "string") offset = parseInt(offset);
+    // if(typeof offset == "string") offset = parseInt(offset);
 
     // Check Request Type
     // if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number") {

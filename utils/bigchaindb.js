@@ -148,7 +148,7 @@ const queryTransaction = async (table, where, orderBy, limit) => {
 
     if(!tx_list.length) return tx_list;
 
-    if(where && where.length)
+    if(where)
         tx_list = await querySolver(tx_list, where);
     if(orderBy && orderBy.length)
         tx_list.sort(orderByHandler(orderBy));
