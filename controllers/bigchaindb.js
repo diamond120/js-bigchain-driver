@@ -80,9 +80,10 @@ exports.getAsset = async (req, res) => {
     
     if(typeof where == "string") where = JSON.parse(where);
     if(typeof limit == "string") limit = parseInt(limit);
+    if(typeof offset == "string") offset = parseInt(offset);
 
     // Check Request Type
-    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof data != "object")
+    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number")
         res.json({ message: 'Request type Failed', data: {}});
 
     if(orderBy == "ASC" || orderBy=="DESC")
@@ -105,7 +106,7 @@ exports.countAsset = async (req, res) => {
     if(typeof limit == "string") limit = parseInt(limit);
 
     // Check Request Type
-    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof data != "object")
+    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number")
         res.json({ message: 'Request type Failed', data: {}});
 
     if(orderBy == "ASC" || orderBy=="DESC")
@@ -126,7 +127,7 @@ exports.sumAsset = async (req, res) => {
     if(typeof limit == "string") limit = parseInt(limit);
 
     // Check Request Type
-    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof data != "object")
+    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof column != "string")
         res.json({ message: 'Request type Failed', data: {}});
 
     if(orderBy == "ASC" || orderBy=="DESC")
@@ -152,7 +153,7 @@ exports.deleteAsset = async (req, res) => {
     if(typeof limit == "string") limit = parseInt(limit);
 
     // Check Request Type
-    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof data != "object")
+    if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number")
         res.json({ message: 'Request type Failed', data: {}});
 
     if(orderBy == "ASC" || orderBy=="DESC")
