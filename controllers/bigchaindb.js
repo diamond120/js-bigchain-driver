@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { createTransaction, queryTransaction } = require('../utils/bigchaindb');
+const { createTransaction, queryTransaction, searchAssets } = require('../utils/bigchaindb');
 const defaultValue = require('../config/default.json');
 
 require('../config');
@@ -74,7 +74,7 @@ exports.updateAsset = async (req, res) => {
 
 exports.getAsset = async (req, res) => {
     let { object, where, orderBy, limit } = req.query;
-    // let timestamp = Date.now();
+    let timestamp = Date.now();
     
     if(typeof where == "string") where = JSON.parse(where);
     if(typeof limit == "string") limit = parseInt(limit);
@@ -96,7 +96,7 @@ exports.getAsset = async (req, res) => {
     // Send Query Request
     let list = await queryTransaction(object, where, orderBy, limit);
 
-    // console.log(Date.now() - timestamp);
+    console.log(Date.now() - timestamp);
     
     res.json({ message: 'Transaction successfully fetched', data: list });
 };

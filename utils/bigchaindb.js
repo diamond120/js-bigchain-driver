@@ -1,6 +1,8 @@
 const driver = require('bigchaindb-driver');
 const conn = require('../config/bigchaindb');
+const { query } = require('express');
 require('../config');
+
 
 const createTransaction = async (asset, metadata) => {
     const tx = driver.Transaction.makeCreateTransaction(
@@ -55,6 +57,7 @@ const json_decode = (object) => {
 }
 
 const searchAssets = async (key, value) => {
+    let timestamp = Date.now();
     let query;
     if(key == 'object') {
         query = Buffer.from(JSON.stringify({ object: value })).toString('base64')
@@ -79,6 +82,8 @@ const searchAssets = async (key, value) => {
         }
     }
 
+    console.log('Search Assets: ', Date.now() - timestamp);
+
     return Object.values(result);
 }
 
@@ -98,12 +103,15 @@ const arrayMerge = async (connector, array1, array2) => {
 
     if(connector == "or")
         for(const key of array)
-            response[key['id']] = array;
-    else
+            response[key['id']] = key;
+    else {
+        for(const key of array1)
+            response[key['id']] = true;
         for(const key of array2)
-            if(array1[key['id']])
-                response[key['id']] = array2;
-    return Object.values(response);
+            if(response[key['id']])
+                response[key['id']] = key;
+    }
+    return Object.values(response).filter(item => typeof item === 'object');
 }
 
 const whereHandlers = {
@@ -115,36 +123,86 @@ const whereHandlers = {
     'between' : operand => value => Object.keys(operand).every(key => value[key] >= operand[key][0] && value[key] <= operand[key][1]),
 }
 
-const querySolver = async (tx_list, where) => {
-    if(where['operator'])
-        return tx_list.filter(whereHandlers[where.operator](where.operand));
-    else if(where['connector']) {
+const nonBoosters = ['like', '!=', '!in', 'between'];
+
+const querySolver = async (resource, where) => {
+    if(where['operator']) {
+        if(typeof resource == "object")
+            return resource.filter(whereHandlers[where.operator](where.operand));
+
+        switch(where['operator']) {
+            case 'in':
+                const [key, values] = Object.entries(where['operand'])[0];
+                // console.log('--------------------Parsing to AND Query--------------------');
+                // console.log('--------------------From--------------------');
+                // console.log(JSON.stringify(where));
+                // console.log('--------------------To--------------------');
+                // console.log(JSON.stringify({
+                //     'connector': 'or',
+                //     'queries': values.map(value => ({
+                //         operator: '==',
+                //         operand: { [key]: value }
+                //     }))
+                // }));
+                return await querySolver(resource, {
+                    'connector': 'or',
+                    'queries': values.map(value => ({
+                        operator: '==',
+                        operand: { [key]: value }
+                    }))
+                });
+
+            case '==':
+                const entries = Object.entries(where['operand']);
+                const [field, value] = entries[0];
+                const asset = await searchAssets(`${resource}.${field}`, value);
+
+                if(entries.length == 1) return asset;
+                
+                return await querySolver(asset, {
+                    connector: 'and',
+                    queries: entries.slice(1).map(([key, value]) => ({
+                        operator: '==',
+                        operand: { [key]: value }
+                    }))
+                });       
+
+            default:
+                throw new Error('non booster detected');
+        }
+    }
+    if(where['connector']) {
+        console.log('--------------------Merging Assets--------------------');
+        console.log(where);
         const connector = where['connector'];
         let result = []
     
-        for(const query of where['queries']) {
-            const tx = await querySolver(tx_list, query);
-    
-            if(!result.length) result = tx;
-            else result = await arrayMerge(connector, result, tx);
-        }
+        // if(connector == 'or') {
+            for(const query of where['queries']) {
+                const asset = await querySolver(resource, query);
+
+                if(!result.length) result = asset;
+                else result = await arrayMerge(connector, result, asset);
+            }
+        // } else if(connector == 'and'){
+        // }
+
         return result;
     }
-    else {
-        console.log('Query Solver format error');
-    }
+    return resource;
 }
 
 const queryTransaction = async (table, where, orderBy, limit) => {
-    let tx_list
-    // const isSpecial = JSON.stringify(where).includes('"!="') || JSON.stringify(where).includes('"!in"') || JSON.stringify(where).includes('"between"') || JSON.stringify(where).includes('"like"');
-    // if(!where || isSpecial)
-        tx_list = await searchAssets('object', table)
+    let tx_list = []
+    const whereString = JSON.stringify(where);
 
-    if(!tx_list.length) return tx_list;
+   if(nonBoosters.some(item => whereString.includes(`{"operator":${item},"operand":{`)))
+        tx_list = await querySolver(await searchAssets('object', table), where);
+   else 
+        tx_list = await querySolver(table, where);
 
-    if(where)
-        tx_list = await querySolver(tx_list, where)
+
+    if(!tx_list.length) return tx_list;        
 
     if(orderBy && orderBy.length)
         tx_list.sort(orderByHandler(orderBy));
