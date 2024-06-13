@@ -133,17 +133,6 @@ const querySolver = async (resource, where) => {
         switch(where['operator']) {
             case 'in':
                 const [key, values] = Object.entries(where['operand'])[0];
-                // console.log('--------------------Parsing to AND Query--------------------');
-                // console.log('--------------------From--------------------');
-                // console.log(JSON.stringify(where));
-                // console.log('--------------------To--------------------');
-                // console.log(JSON.stringify({
-                //     'connector': 'or',
-                //     'queries': values.map(value => ({
-                //         operator: '==',
-                //         operand: { [key]: value }
-                //     }))
-                // }));
                 return await querySolver(resource, {
                     'connector': 'or',
                     'queries': values.map(value => ({
@@ -168,7 +157,7 @@ const querySolver = async (resource, where) => {
                 });       
 
             default:
-                throw new Error('non booster detected');
+                throw new Error('non booster detected', where);
         }
     }
     if(where['connector']) {

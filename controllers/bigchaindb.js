@@ -73,11 +73,12 @@ exports.updateAsset = async (req, res) => {
 };
 
 exports.getAsset = async (req, res) => {
-    let { object, where, orderBy, limit } = req.query;
+    let { object, where, orderBy, limit, join } = req.query;
     let timestamp = Date.now();
     
     if(typeof where == "string") where = JSON.parse(where);
     if(typeof limit == "string") limit = parseInt(limit);
+    if(typeof join == "string") join = JSON.parse(where);
     // if(typeof offset == "string") offset = parseInt(offset);
 
     // Check Request Type
