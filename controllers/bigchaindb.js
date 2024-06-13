@@ -15,24 +15,20 @@ exports.createAsset = async (req, res) => {
 
     console.log("Create Asset Request: ", object, JSON.stringify(data))
 
-    // Define Metadata
-    let metadata = {
-        "object": object,
+    // Define Asset
+    let asset = {
+        'object': object,
+        'id': uuidv4(),
+        'created_at': Math.floor(Date.now() / 1000)
     };
-    metadata['id'] = uuidv4();
-    metadata['created_at'] = Math.floor(Date.now() / 1000);
 
     // Add Default Value
-    data = { ...data, ...defaultValue[object] }
+    asset = { ...defaultValue[object], ...data, ...asset }
 
     // Send Create Request
-    const tx = await createTransaction(data, metadata);
-    console.log(tx.id);
+    const tx = await createTransaction(asset, null);
 
-    res.json({ message: 'Success', data: {
-        ...tx.asset.data,
-        ...tx.metadata
-    }});
+    res.json({ message: 'Success', data: tx});
 };
 
 exports.updateAsset = async (req, res) => {
@@ -57,24 +53,20 @@ exports.updateAsset = async (req, res) => {
     let list = await queryTransaction(object, where, orderBy, limit);
 
     for(const tx of list) {
-        let metadata = {}, asset = {};
+        let asset = {};
 
-        // Define Assets & Metadata
-        metadata['created_at'] = Math.floor(Date.now() / 1000);
+        // Define Assets
 
-        for(const key in tx) {
-            if(key == "object" || key == "id" || key == "created_at")
-                metadata[key] = tx[key];
-            else
-                asset[key] = tx[key];
-        }
+        for(const key in tx)
+            asset[key] = tx[key];
+        asset['created_at'] = Math.floor(Date.now() / 1000);
 
         // Update data
         for(const key in data)
             asset[key] = data[key];
 
         // Send Create Request
-        await createTransaction(asset, metadata);
+        await createTransaction(asset, null);
     }
 
     res.json({ message: 'Success' });
@@ -188,12 +180,12 @@ exports.deleteAsset = async (req, res) => {
 
     // Delete assets
     for(const element of list) {
-        let metadata = {
+        let asset = {
             "object": element.object,
-            "id": element.id
+            "id": element.id,
+            "created_at": null
         };
-        metadata['created_at'] = null;
-        await createTransaction(null, metadata);
+        await createTransaction(asset, null);
     }
 
     res.json({ message: 'Success' });

@@ -4,7 +4,7 @@ require('../config');
 
 const createTransaction = async (asset, metadata) => {
     const tx = driver.Transaction.makeCreateTransaction(
-        asset,
+        json_encode(asset),
         metadata,
         [ driver.Transaction.makeOutput(
                 driver.Transaction.makeEd25519Condition(process.env.PUBLIC_KEY))
@@ -15,7 +15,7 @@ const createTransaction = async (asset, metadata) => {
     const txSigned = driver.Transaction.signTransaction(tx, process.env.PRIVATE_KEY);
     const retrievedTx = await conn.postTransactionCommit(txSigned);
 
-    return retrievedTx;
+    return json_decode(retrievedTx.asset.data);
 }
 
 const getTransaction = async (id) => {
@@ -32,71 +32,54 @@ const searchMetadata = async (query) => {
     return list;
 }
 
-const searchAssets = async (query) => {
-    let response = await fetch(`${process.env.BIGCHAINDB_SERVER_URL}assets/?search=${query}`);
-    let list = await response.json();
-
-    return list;
-}
-
-const getTransactionsForTable = async (table) => {
-    // let timestamp = Date.now();
-    const response = await searchMetadata(table);
-
-    let tx_list = {};
-    let blacklist = [];
-
-    for(const element of response)
-        if(element.metadata?.created_at == null)
-            blacklist.push(element.metadata?.id);
-
-    let promise = [];
-    let count = 0;
-
-    for(const element of response) {
-        if(!blacklist.includes(element.metadata?.id)) {
-            promise.push(getTransaction(element.id))
-            count ++
-            // const tx = await getTransaction(id);
-
-            if(count == 500) {
-                const result = await Promise.all(promise);
-
-                for(const j in result)
-                    if(!tx_list[result[j].metadata?.id] || tx_list[result[j].metadata?.id].created_at < result[j].metadata?.created_at)
-                        tx_list[result[j].metadata?.id] = {
-                            ...result[j].asset?.data,
-                            ...result[j].metadata,
-                        }
-                promise = [];
-                count = 0;
-            }           
-        }
+const json_encode = (object) => {
+    let result = {}
+    for(const key in object) {
+        if(key == 'object')
+            result[key] = Buffer.from(JSON.stringify({ object: object['object'] })).toString('base64');
+        else
+            result[key] = JSON.stringify([`${object['object']}.${key}`, object[key]]);
     }
-            
-    let result = await Promise.all(promise);
-    for(const j in result)
-        if(!tx_list[result[j].metadata?.id] || tx_list[result[j].metadata?.id].created_at < result[j].metadata?.created_at)
-            tx_list[result[j].metadata?.id] = {
-                ...result[j].asset?.data,
-                ...result[j].metadata,
-            }
-
-    result = [];
-    for(const i in tx_list)
-        result.push(tx_list[i])
-
-    // console.log('Get Table', Date.now() - timestamp);
     return result;
 }
 
-const whereHandlers = {
-    '==' : operand => value => Object.keys(operand).every(key => operand[key] == value[key]),
-    'like' : operand => value => Object.keys(operand).every(key => value[key]?.includes(operand[key])),
-    '!=' : operand => value => !(Object.keys(operand).every(key => operand[key] == value[key])),
-    'in' : operand => value => Object.keys(operand).every(key => operand[key]?.includes(value[key])),
-    '!in' : operand => value => !(Object.keys(operand).every(key => operand[key]?.includes(value[key]))),
-    'between' : operand => value => Object.keys(operand).every(key => value[key] >= operand[key][0] && value[key] <= operand[key][1]),
+const json_decode = (object) => {
+    let result = {}
+    for(const key in object) {
+        if(key == 'object')
+            result[key] = JSON.parse(Buffer.from(object[key], 'base64').toString('utf8'))['object'];
+        else
+            result[key] = JSON.parse(object[key])[1];
+    }
+    return result;
+}
+
+const searchAssets = async (key, value) => {
+    let query;
+    if(key == 'object') {
+        query = Buffer.from(JSON.stringify({ object: value })).toString('base64')
+    } else {
+        query = JSON.stringify([key, value])
+    }
+    let response = await fetch(`${process.env.BIGCHAINDB_SERVER_URL}assets/?search=${query}`);
+    let list = await response.json();
+
+    list = list.map(element => json_decode(element.data));
+    
+    let result = {}, blacklist = [];
+
+    for(const element of list)
+        if(element.created_at == null)
+            blacklist.push(element.id)
+        
+    for(const element of list) {
+        if(!blacklist.includes(element.id)) {
+            if(!result[element.id] || result[element.id].created_at < element.created_at)
+                result[element.id] = element
+        }
+    }
+
+    return Object.values(result);
 }
 
 const orderByHandler = params => (a, b) => {
@@ -123,6 +106,15 @@ const arrayMerge = async (connector, array1, array2) => {
     return Object.values(response);
 }
 
+const whereHandlers = {
+    '==' : operand => value => Object.keys(operand).every(key => operand[key] == value[key]),
+    'like' : operand => value => Object.keys(operand).every(key => value[key]?.includes(operand[key])),
+    '!=' : operand => value => !(Object.keys(operand).every(key => operand[key] == value[key])),
+    'in' : operand => value => Object.keys(operand).every(key => operand[key]?.includes(value[key])),
+    '!in' : operand => value => !(Object.keys(operand).every(key => operand[key]?.includes(value[key]))),
+    'between' : operand => value => Object.keys(operand).every(key => value[key] >= operand[key][0] && value[key] <= operand[key][1]),
+}
+
 const querySolver = async (tx_list, where) => {
     if(where['operator'])
         return tx_list.filter(whereHandlers[where.operator](where.operand));
@@ -144,12 +136,16 @@ const querySolver = async (tx_list, where) => {
 }
 
 const queryTransaction = async (table, where, orderBy, limit) => {
-    let tx_list = await getTransactionsForTable(table);
+    let tx_list
+    // const isSpecial = JSON.stringify(where).includes('"!="') || JSON.stringify(where).includes('"!in"') || JSON.stringify(where).includes('"between"') || JSON.stringify(where).includes('"like"');
+    // if(!where || isSpecial)
+        tx_list = await searchAssets('object', table)
 
     if(!tx_list.length) return tx_list;
 
     if(where)
-        tx_list = await querySolver(tx_list, where);
+        tx_list = await querySolver(tx_list, where)
+
     if(orderBy && orderBy.length)
         tx_list.sort(orderByHandler(orderBy));
     if(limit)
