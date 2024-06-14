@@ -38,6 +38,7 @@ exports.updateAsset = async (req, res) => {
     if(typeof page == "string") page = parseInt(page);
     if(typeof limit == "string") limit = parseInt(limit);
     if(typeof join == "string") join = JSON.parse(join);
+    if(typeof data == "string") data = JSON.parse(data);
 
     // Check Request Type
     // if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof data != "object") {
@@ -168,7 +169,7 @@ exports.sumAsset = async (req, res) => {
     for(const element of list)
         sum = sum + parseInt(element[column]);
     
-    res.json({ message: 'Transaction Count: ', data: sum});
+    res.json({ message: 'Transaction Sum: ', data: sum});
 };
 
 exports.deleteAsset = async (req, res) => {
