@@ -46,7 +46,6 @@ const json_encode = (object) => {
 }
 
 const json_decode = (object) => {
-    console.log(object);
     let result = {}
     for(const key in object) {
         if(key == 'object')
@@ -68,8 +67,6 @@ const searchAssets = async (key, value) => {
 
     let response = await fetch(`${process.env.BIGCHAINDB_SERVER_URL}assets/?search=${query}`);
     let list = await response.json();
-
-    console.log(list)
 
     list = list.map(element => json_decode(element.data));
     
@@ -149,11 +146,7 @@ const querySolver = async (resource, where) => {
             case '==':
                 const entries = Object.entries(where['operand']);
                 const [field, value] = entries[0];
-
-                console.log(resource, field, value);
                 const asset = await searchAssets(`${resource}.${field}`, value);
-
-                console.log(asset)
 
                 if(entries.length == 1) return asset;
                 
