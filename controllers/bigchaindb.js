@@ -32,9 +32,12 @@ exports.createAsset = async (req, res) => {
 };
 
 exports.updateAsset = async (req, res) => {
-    let { object, where, orderBy, limit, data } = req.body;
+    let { object, join, where, orderBy, page, limit, data } = req.body;
+
     if(typeof where == "string") where = JSON.parse(where);
+    if(typeof page == "string") page = parseInt(page);
     if(typeof limit == "string") limit = parseInt(limit);
+    if(typeof join == "string") join = JSON.parse(join);
 
     // Check Request Type
     // if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof data != "object") {
@@ -50,7 +53,7 @@ exports.updateAsset = async (req, res) => {
     console.log("Update Asset Request: ", object, JSON.stringify(where), orderBy, limit, JSON.stringify(data))
 
     // Filter Transactions with condition
-    let list = await queryTransaction(object, where, orderBy, limit);
+    let list = (await queryTransaction(object, join, where, orderBy, page, limit)).data;
 
     for(const tx of list) {
         let asset = {};
@@ -73,12 +76,13 @@ exports.updateAsset = async (req, res) => {
 };
 
 exports.getAsset = async (req, res) => {
-    let { object, where, orderBy, limit, join } = req.query;
+    let { object, where, orderBy, page, limit, join } = req.query;
     let timestamp = Date.now();
     
     if(typeof where == "string") where = JSON.parse(where);
+    if(typeof page == "string") page = parseInt(page);
     if(typeof limit == "string") limit = parseInt(limit);
-    if(typeof join == "string") join = JSON.parse(where);
+    if(typeof join == "string") join = JSON.parse(join);
     // if(typeof offset == "string") offset = parseInt(offset);
 
     // Check Request Type
@@ -95,18 +99,26 @@ exports.getAsset = async (req, res) => {
     console.log("Get Asset Request: ", object, JSON.stringify(where), orderBy, limit)
 
     // Send Query Request
-    let list = await queryTransaction(object, where, orderBy, limit);
+    let list = await queryTransaction(object, join, where, orderBy, page, limit);
+    let response = list
+
+    if(!page)
+        response = {
+            data: list.data
+        }
 
     console.log(Date.now() - timestamp);
     
-    res.json({ message: 'Transaction successfully fetched', data: list });
+    res.json({ message: 'Transaction successfully fetched', ...response });
 };
 
 exports.countAsset = async (req, res) => {
-    let { object, where, orderBy, limit } = req.query;
+    let { object, join, where, orderBy, page, limit } = req.query;
     
     if(typeof where == "string") where = JSON.parse(where);
+    if(typeof page == "string") page = parseInt(page);
     if(typeof limit == "string") limit = parseInt(limit);
+    if(typeof join == "string") join = JSON.parse(join);
 
     // Check Request Type
     // if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number") {
@@ -122,16 +134,18 @@ exports.countAsset = async (req, res) => {
     console.log("Count Asset Request: ", object, JSON.stringify(where), orderBy, limit)
 
     // Send Query Request
-    let list = await queryTransaction(object, where, orderBy, limit);
+    let list = await queryTransaction(object, join, where, orderBy, page, limit);
         
-    res.json({ message: 'Transaction Count: ', data: list.length});
+    res.json({ message: 'Transaction Count: ', data: list.data.length});
 };
 
 exports.sumAsset = async (req, res) => {
-    let { object, where, orderBy, limit, column } = req.query;
+    let { object, join, where, orderBy, page, limit, column } = req.query;
     
     if(typeof where == "string") where = JSON.parse(where);
+    if(typeof page == "string") page = parseInt(page);
     if(typeof limit == "string") limit = parseInt(limit);
+    if(typeof join == "string") join = JSON.parse(join);
 
     // Check Request Type
     // if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number" || typeof column != "string") {
@@ -147,7 +161,7 @@ exports.sumAsset = async (req, res) => {
     console.log("Sum Asset Request: ", object, JSON.stringify(where), orderBy, limit, column)
 
     // Send Query Request
-    let list = await queryTransaction(object, where, orderBy, limit);
+    let list = (await queryTransaction(object, join, where, orderBy, page, limit)).data;
 
     // Sum Column data
     let sum = 0;
@@ -158,10 +172,12 @@ exports.sumAsset = async (req, res) => {
 };
 
 exports.deleteAsset = async (req, res) => {
-    let { object, where, orderBy, limit } = req.query;
+    let { object, join, where, orderBy, page, limit } = req.query;
     
     if(typeof where == "string") where = JSON.parse(where);
+    if(typeof page == "string") page = parseInt(page);
     if(typeof limit == "string") limit = parseInt(limit);
+    if(typeof join == "string") join = JSON.parse(join);
 
     // Check Request Type
     // if(typeof object != "string" || typeof where != "object" || typeof orderBy != "string" || typeof limit != "number") {
@@ -177,7 +193,7 @@ exports.deleteAsset = async (req, res) => {
     console.log("Delete Asset Request: ", object, JSON.stringify(where), orderBy, limit)
 
     // Send Query Request
-    let list = await queryTransaction(object, where, orderBy, limit);
+    let list = (await queryTransaction(object, join, where, orderBy, page, limit)).data;
 
     // Delete assets
     for(const element of list) {

@@ -126,6 +126,7 @@ const whereHandlers = {
 const nonBoosters = ['like', '!=', '!in', 'between'];
 
 const querySolver = async (resource, where) => {
+    if(!where) return resource
     if(where['operator']) {
         if(typeof resource == "object")
             return resource.filter(whereHandlers[where.operator](where.operand));
@@ -157,12 +158,10 @@ const querySolver = async (resource, where) => {
                 });       
 
             default:
-                throw new Error('non booster detected', where);
+                throw new Error('non booster detected');
         }
     }
     if(where['connector']) {
-        console.log('--------------------Merging Assets--------------------');
-        console.log(where);
         const connector = where['connector'];
         let result = []
     
@@ -178,27 +177,37 @@ const querySolver = async (resource, where) => {
 
         return result;
     }
-    return resource;
+    throw new Error('Where format incorrect');
 }
 
-const queryTransaction = async (table, where, orderBy, limit) => {
+const queryTransaction = async (table, where, orderBy, page, limit, join) => {
     let tx_list = []
     const whereString = JSON.stringify(where);
+    console.log(whereString)
 
-   if(nonBoosters.some(item => whereString.includes(`{"operator":${item},"operand":{`)))
+   if(!where || nonBoosters.some(item => whereString.includes(`{"operator":"${item}","operand":{`)))
         tx_list = await querySolver(await searchAssets('object', table), where);
    else 
         tx_list = await querySolver(table, where);
 
 
-    if(!tx_list.length) return tx_list;        
+    if(!tx_list.length) return {
+        data: tx_list
+    }        
 
     if(orderBy && orderBy.length)
         tx_list.sort(orderByHandler(orderBy));
-    if(limit)
-        tx_list = tx_list.slice(0, limit);
 
-    return tx_list;
+    let offset = 0, count = tx_list.length;
+    if(page) 
+        offset = page * limit;
+    if(limit)
+        tx_list = tx_list.slice(offset, offset+limit);
+
+    return {
+        data: tx_list,
+        total: count
+    };
 }
 
 module.exports = { createTransaction, getTransaction, searchMetadata, searchAssets, queryTransaction };
