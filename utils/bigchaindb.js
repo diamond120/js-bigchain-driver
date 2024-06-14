@@ -40,18 +40,19 @@ const json_encode = (object) => {
         if(key == 'object')
             result[key] = Buffer.from(JSON.stringify({ object: object['object'] })).toString('base64');
         else
-            result[key] = JSON.stringify([`${object['object']}.${key}`, object[key]]);
+            result[key] = Buffer.from(JSON.stringify([`${object['object']}.${key}`, object[key]])).toString('base64');
     }
     return result;
 }
 
 const json_decode = (object) => {
+    console.log(object);
     let result = {}
     for(const key in object) {
         if(key == 'object')
             result[key] = JSON.parse(Buffer.from(object[key], 'base64').toString('utf8'))['object'];
         else
-            result[key] = JSON.parse(object[key])[1];
+            result[key] = JSON.parse(Buffer.from(object[key], 'base64').toString('utf8'))[1];
     }
     return result;
 }
@@ -62,10 +63,13 @@ const searchAssets = async (key, value) => {
     if(key == 'object') {
         query = Buffer.from(JSON.stringify({ object: value })).toString('base64')
     } else {
-        query = JSON.stringify([key, value])
+        query = Buffer.from(JSON.stringify([key, value])).toString('base64')
     }
+
     let response = await fetch(`${process.env.BIGCHAINDB_SERVER_URL}assets/?search=${query}`);
     let list = await response.json();
+
+    console.log(list)
 
     list = list.map(element => json_decode(element.data));
     
@@ -123,7 +127,7 @@ const whereHandlers = {
     'between' : operand => value => Object.keys(operand).every(key => value[key] >= operand[key][0] && value[key] <= operand[key][1]),
 }
 
-const nonBoosters = ['like', '!=', '!in', 'between'];
+const complexOperators = ['like', '!=', '!in', 'between'];
 
 const querySolver = async (resource, where) => {
     if(!where) return resource
@@ -145,7 +149,11 @@ const querySolver = async (resource, where) => {
             case '==':
                 const entries = Object.entries(where['operand']);
                 const [field, value] = entries[0];
+
+                console.log(resource, field, value);
                 const asset = await searchAssets(`${resource}.${field}`, value);
+
+                console.log(asset)
 
                 if(entries.length == 1) return asset;
                 
@@ -180,12 +188,12 @@ const querySolver = async (resource, where) => {
     throw new Error('Where format incorrect');
 }
 
-const queryTransaction = async (table, where, orderBy, page, limit, join) => {
+const queryTransaction = async (table, join, where, orderBy, page, limit) => {
     let tx_list = []
-    const whereString = JSON.stringify(where);
-    console.log(whereString)
+    const whereString = typeof where == "object" ? JSON.stringify(where) : where;
+    console.log("Where String: ", whereString)
 
-   if(!where || nonBoosters.some(item => whereString.includes(`{"operator":"${item}","operand":{`)))
+   if(!where || complexOperators.some(item => whereString.includes(`{"operator":"${item}","operand":{`)))
         tx_list = await querySolver(await searchAssets('object', table), where);
    else 
         tx_list = await querySolver(table, where);
