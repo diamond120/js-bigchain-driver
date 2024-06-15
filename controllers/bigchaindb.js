@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { createTransaction, queryTransaction, searchAssets } = require('../utils/bigchaindb');
+const { createTransaction, queryAsset, searchAssets } = require('../utils/bigchaindb');
 const defaultValue = require('../config/default.json');
 
 require('../config');
@@ -54,7 +54,7 @@ exports.updateAsset = async (req, res) => {
     console.log("Update Asset Request: ", object, JSON.stringify(where), orderBy, limit, JSON.stringify(data))
 
     // Filter Transactions with condition
-    let list = (await queryTransaction(object, join, where, orderBy, page, limit)).data;
+    let list = (await queryAsset(object, join, where, orderBy, page, limit)).data;
 
     for(const tx of list) {
         let asset = {};
@@ -100,7 +100,7 @@ exports.getAsset = async (req, res) => {
     console.log("Get Asset Request: ", object, JSON.stringify(where), orderBy, limit)
 
     // Send Query Request
-    let list = await queryTransaction(object, join, where, orderBy, page, limit);
+    let list = await queryAsset(object, join, where, orderBy, page, limit);
     let response = list
 
     if(!page)
@@ -135,7 +135,7 @@ exports.countAsset = async (req, res) => {
     console.log("Count Asset Request: ", object, JSON.stringify(where), orderBy, limit)
 
     // Send Query Request
-    let list = await queryTransaction(object, join, where, orderBy, page, limit);
+    let list = await queryAsset(object, join, where, orderBy, page, limit);
         
     res.json({ message: 'Transaction Count: ', data: list.data.length});
 };
@@ -162,7 +162,7 @@ exports.sumAsset = async (req, res) => {
     console.log("Sum Asset Request: ", object, JSON.stringify(where), orderBy, limit, column)
 
     // Send Query Request
-    let list = (await queryTransaction(object, join, where, orderBy, page, limit)).data;
+    let list = (await queryAsset(object, join, where, orderBy, page, limit)).data;
 
     // Sum Column data
     let sum = 0;
@@ -194,7 +194,7 @@ exports.deleteAsset = async (req, res) => {
     console.log("Delete Asset Request: ", object, JSON.stringify(where), orderBy, limit)
 
     // Send Query Request
-    let list = (await queryTransaction(object, join, where, orderBy, page, limit)).data;
+    let list = (await queryAsset(object, join, where, orderBy, page, limit)).data;
 
     // Delete assets
     for(const element of list) {

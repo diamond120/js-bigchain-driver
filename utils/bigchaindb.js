@@ -181,16 +181,28 @@ const querySolver = async (resource, where) => {
     throw new Error('Where format incorrect');
 }
 
-const queryTransaction = async (table, join, where, orderBy, page, limit) => {
+const joinSolver = async (table1, join) => {
+    const table2 = join['table'];
+    const { field1, field2, operator } = join;
+
+    let where1, where2;
+
+}
+
+const queryAsset = async (table, join, where, orderBy, page, limit) => {
     let tx_list = []
-    const whereString = typeof where == "object" ? JSON.stringify(where) : where;
-    console.log("Where String: ", whereString)
 
-   if(!where || complexOperators.some(item => whereString.includes(`{"operator":"${item}","operand":{`)))
-        tx_list = await querySolver(await searchAssets('object', table), where);
-   else 
-        tx_list = await querySolver(table, where);
-
+    if(join) {
+        tx_list = await joinSolver(table, join);
+    } else {
+        const whereString = typeof where == "object" ? JSON.stringify(where) : where;
+        console.log("Where String: ", whereString)
+    
+       if(!where || complexOperators.some(item => whereString.includes(`{"operator":"${item}","operand":{`)))
+            tx_list = await querySolver(await searchAssets('object', table), where);
+       else 
+            tx_list = await querySolver(table, where);
+    }
 
     if(!tx_list.length) return {
         data: tx_list
@@ -201,7 +213,7 @@ const queryTransaction = async (table, join, where, orderBy, page, limit) => {
 
     let offset = 0, count = tx_list.length;
     if(page) 
-        offset = page * limit;
+        offset = (page - 1) * limit;
     if(limit)
         tx_list = tx_list.slice(offset, offset+limit);
 
@@ -211,4 +223,4 @@ const queryTransaction = async (table, join, where, orderBy, page, limit) => {
     };
 }
 
-module.exports = { createTransaction, getTransaction, searchMetadata, searchAssets, queryTransaction };
+module.exports = { createTransaction, getTransaction, searchMetadata, searchAssets, queryAsset };
