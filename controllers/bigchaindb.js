@@ -198,12 +198,8 @@ exports.deleteAsset = async (req, res) => {
 
     // Delete assets
     for(const element of list) {
-        let asset = {
-            "object": element.object,
-            "id": element.id,
-            "created_at": null
-        };
-        await createTransaction(asset, null);
+        element['created_at'] = null;
+        await createTransaction(element, null);
     }
 
     res.json({ message: 'Success' });
