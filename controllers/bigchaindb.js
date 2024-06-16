@@ -195,12 +195,14 @@ exports.deleteAsset = async (req, res) => {
 
     // Send Query Request
     let list = (await queryAsset(object, join, where, orderBy, page, limit)).data;
+    let tx_list = [];
 
     // Delete assets
-    for(const element of list) {
+    for(const element of list) { 
+        tx_list.push(element.id);
         element['created_at'] = null;
         await createTransaction(element, null);
     }
 
-    res.json({ message: 'Success' });
+    res.json({ message: 'Success', data: tx_list });
 };
