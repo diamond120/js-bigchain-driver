@@ -181,19 +181,25 @@ const querySolver = async (resource, where) => {
     throw new Error('Where format incorrect');
 }
 
-const joinSolver = async (table1, join) => {
+const joinSolver = async (table1, join, where) => {
     const table2 = join['table'];
     const { field1, field2, operator } = join;
+    const whereString = typeof where == "object" ? JSON.stringify(where) : where;
+    let tx_list = [];
 
-    let where1, where2;
+    console.log("Join, Where String: ", join, whereString)
 
+    if(!where || complexOperators.some(item => whereString.includes(`{"operator":"${item}","operand":{`)))
+        tx_list = await querySolver(await searchAssets('object', table), where);
+    else 
+        tx_list = await querySolver(table, where);    
 }
 
 const queryAsset = async (table, join, where, orderBy, page, limit) => {
     let tx_list = []
 
     if(join) {
-        tx_list = await joinSolver(table, join);
+        tx_list = await joinSolver(table, join, where);
     } else {
         const whereString = typeof where == "object" ? JSON.stringify(where) : where;
         console.log("Where String: ", whereString)
@@ -205,7 +211,8 @@ const queryAsset = async (table, join, where, orderBy, page, limit) => {
     }
 
     if(!tx_list.length) return {
-        data: tx_list
+        data: tx_list,
+        total: 0
     }        
 
     if(orderBy && orderBy.length)
