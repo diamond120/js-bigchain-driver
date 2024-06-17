@@ -55,12 +55,12 @@ exports.updateAsset = async (req, res) => {
 
     // Filter Transactions with condition
     let list = (await queryAsset(object, join, where, orderBy, page, limit)).data;
+    let tx_list = []
 
     for(const tx of list) {
         let asset = {};
 
         // Define Assets
-
         for(const key in tx)
             asset[key] = tx[key];
         asset['created_at'] = Math.floor(Date.now() / 1000);
@@ -71,9 +71,10 @@ exports.updateAsset = async (req, res) => {
 
         // Send Create Request
         await createTransaction(asset, null);
+        tx_list.push(asset)
     }
 
-    res.json({ message: 'Success' });
+    res.json({ message: 'Success', data: tx_list});
 };
 
 exports.getAsset = async (req, res) => {
