@@ -181,34 +181,36 @@ const querySolver = async (resource, where) => {
     throw new Error('Where format incorrect');
 }
 
-const joinSolver = async (table1, join, where) => {
-    const table2 = join['table'];
-    const { field1, field2, operator } = join;
-    const whereString = typeof where == "object" ? JSON.stringify(where) : where;
-    let tx_list = [];
-
-    console.log("Join, Where String: ", join, whereString)
-
-    if(!where || complexOperators.some(item => whereString.includes(`{"operator":"${item}","operand":{`)))
-        tx_list = await querySolver(await searchAssets('object', table), where);
-    else 
-        tx_list = await querySolver(table, where);    
-}
-
 const queryAsset = async (table, join, where, orderBy, page, limit) => {
     let tx_list = []
 
+    const whereString = typeof where == "object" ? JSON.stringify(where) : where;
+    console.log("Where String: ", whereString)
+
     if(join) {
-        tx_list = await joinSolver(table, join, where);
-    } else {
-        const whereString = typeof where == "object" ? JSON.stringify(where) : where;
-        console.log("Where String: ", whereString)
-    
-       if(!where || complexOperators.some(item => whereString.includes(`{"operator":"${item}","operand":{`)))
-            tx_list = await querySolver(await searchAssets('object', table), where);
-       else 
-            tx_list = await querySolver(table, where);
+        let [subTable, joinId, subJoinId] = join;
+        joinId = joinId.slice(joinId.indexOf('.') + 1);
+        subJoinId = subJoinId.slice(subJoinId.indexOf('.') + 1);
+
+        const parents = await searchAssets('object', table);
+        const children = await searchAssets('object', subTable);
+        
+        for(let parent of parents)
+            for(let child of children)
+                if(parent[joinId] == child[subJoinId]) {
+                    let obj = {}
+                    for(const key in parent)
+                        obj[`${table}.${key}`] = parent[key]
+                    for(const key in child)
+                        obj[`${subTable}.${key}`] = child[key]
+                    tx_list.push(obj)
+                }
+        tx_list = await querySolver(tx_list, where);
     }
+    else if(!where || complexOperators.some(item => whereString.includes(`{"operator":"${item}","operand":{`)))
+        tx_list = await querySolver(await searchAssets('object', table), where);
+    else 
+        tx_list = await querySolver(table, where);
 
     if(!tx_list.length) return {
         data: tx_list,
@@ -223,6 +225,28 @@ const queryAsset = async (table, join, where, orderBy, page, limit) => {
         offset = (page - 1) * limit;
     if(limit)
         tx_list = tx_list.slice(offset, offset+limit);
+
+    if(join) {
+        let list = {}
+
+        let subTable = join[0];
+
+        for(const tx of tx_list) {
+            let parent = {}, child = {};
+            for(const key in tx) {
+                if(key.includes(table))
+                    parent[key.slice(key.indexOf('.') + 1)] = tx[key];
+                else if(key.includes(subTable))
+                    child[key.slice(key.indexOf('.') + 1)] = tx[key];
+            }
+            if(list[parent.id])
+                list[parent.id].push(child);
+            else
+                list[parent.id] = { ...parent, [subTable]: [child]}
+        }
+
+        tx_list = Object.values(list);
+    }
 
     return {
         data: tx_list,
