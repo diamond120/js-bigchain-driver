@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
-const { createTransaction, queryAsset, searchAssets } = require('../utils/bigchaindb');
+const { createTransaction } = require('../utils/bigchaindb')
+const { queryAsset } = require('../utils/utils');
 const defaultValue = require('../config/default.json');
 
 require('../config');
