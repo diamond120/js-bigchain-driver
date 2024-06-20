@@ -81,6 +81,10 @@ exports.updateAsset = async (req, res) => {
 exports.getAsset = async (req, res) => {
     let { object, where, orderBy, page, limit, join } = req.query;
     let timestamp = Date.now();
+
+    console.log("Before: ", where);
+    if(where) where = decodeURIComponent(where);
+    console.log("After: ", where);
     
     if(typeof where == "string") where = JSON.parse(where);
     if(typeof page == "string") page = parseInt(page);
@@ -118,6 +122,10 @@ exports.getAsset = async (req, res) => {
 exports.countAsset = async (req, res) => {
     let { object, join, where, orderBy, page, limit } = req.query;
     
+    console.log("Before: ", where);
+    if(where) where = decodeURIComponent(where);
+    console.log("After: ", where);
+
     if(typeof where == "string") where = JSON.parse(where);
     if(typeof page == "string") page = parseInt(page);
     if(typeof limit == "string") limit = parseInt(limit);
@@ -145,6 +153,10 @@ exports.countAsset = async (req, res) => {
 exports.sumAsset = async (req, res) => {
     let { object, join, where, orderBy, page, limit, column } = req.query;
     
+    console.log("Before: ", where);
+    if(where) where = decodeURIComponent(where);
+    console.log("After: ", where);
+
     if(typeof where == "string") where = JSON.parse(where);
     if(typeof page == "string") page = parseInt(page);
     if(typeof limit == "string") limit = parseInt(limit);
@@ -177,6 +189,10 @@ exports.sumAsset = async (req, res) => {
 exports.deleteAsset = async (req, res) => {
     let { object, join, where, orderBy, page, limit } = req.query;
     
+    console.log("Before: ", where);
+    if(where) where = decodeURIComponent(where);
+    console.log("After: ", where);
+
     if(typeof where == "string") where = JSON.parse(where);
     if(typeof page == "string") page = parseInt(page);
     if(typeof limit == "string") limit = parseInt(limit);

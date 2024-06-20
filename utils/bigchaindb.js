@@ -48,6 +48,8 @@ const searchAssets = async (key, value) => {
     let list = await response.json();
 
     list = list.map(element => json_decode(element.data));
+
+    console.log(list);
     
     // Decode Data
     let result = {}, blacklist = [];

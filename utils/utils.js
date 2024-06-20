@@ -3,11 +3,16 @@ const { searchAssets } = require('./bigchaindb')
 
 const whereHandlers = {
     '==' : operand => value => Object.keys(operand).every(key => operand[key] == value[key]),
+    '=' : operand => value => Object.keys(operand).every(key => operand[key] == value[key]),
     'like' : operand => value => Object.keys(operand).every(key => value[key]?.includes(operand[key])),
     '!=' : operand => value => !(Object.keys(operand).every(key => operand[key] == value[key])),
     'in' : operand => value => Object.keys(operand).every(key => operand[key]?.includes(value[key])),
     '!in' : operand => value => !(Object.keys(operand).every(key => operand[key]?.includes(value[key]))),
     'between' : operand => value => Object.keys(operand).every(key => value[key] >= operand[key][0] && value[key] <= operand[key][1]),
+    '<' : operand => value => Object.keys(operand).every(key => operand[key] < value[key] ),
+    '>' : operand => value => Object.keys(operand).every(key => operand[key] > value[key]),
+    '<=' : operand => value => Object.keys(operand).every(key => operand[key] <= value[key] ),
+    '>=' : operand => value => Object.keys(operand).every(key => operand[key] >= value[key]),
 }
 
 const querySolver = async (resource, where) => {
@@ -28,6 +33,7 @@ const querySolver = async (resource, where) => {
                 });
 
             case '==':
+            case '=':
                 const entries = Object.entries(where['operand']);
                 const [field, value] = entries[0];
                 const asset = await searchAssets(`${resource}.${field}`, value);
