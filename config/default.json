@@ -2,6 +2,25 @@
     "activities": {
         "extra": null
     },
+    "bulls": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "close": null,
+        "date": null,
+        "bull": null
+    },
+    "client_messages": {
+        "user": null,
+        "user_phone": null,
+        "message": null,
+        "from": null,
+        "channel": null,
+        "from_phone": null,
+        "sid": null,
+        "status": null
+    },
+    "coin": {},
     "email_templates": {
         "greeting": null,
         "regards": null,
@@ -112,7 +131,9 @@
         "pages": "global",
         "group": "system",
         "panel": "any",
-        "load": "0"
+        "load": "0",
+        "last_refresh_time": null,
+        "next_refresh_time": null
     },
     "users": {
         "email_verified_at": null,
@@ -132,7 +153,53 @@
         "google2fa": "0",
         "google2fa_secret": null,
         "type": "main",
-        "remember_token": null
+        "remember_token": null,
+        "robot": null,
+        "robot_activated_at": null,
+        "equity": null,
+        "robot_last_activated": null,
+        "questionaire_filled": null,
+        "q1": null,
+        "q2": null,
+        "q3": null,
+        "q4": null,
+        "q5": null,
+        "gb_stocks": null,
+        "gb_real_estate": null,
+        "gb_crypto": null,
+        "gb_green_bonds": null,
+        "prediction_array": null,
+        "equity_array": null,
+        "prediction_last_changed": null,
+        "equity_array_last_changed": null,
+        "contributed_demo": null,
+        "tokenBalance_demo": null,
+        "equity_demo": null,
+        "robot_demo": null,
+        "robot_activated_at_demo": null,
+        "robot_last_activated_demo": null,
+        "gb_stocks_demo": null,
+        "gb_real_estate_demo": null,
+        "gb_crypto_demo": null,
+        "gb_green_bonds_demo": null,
+        "prediction_array_demo": null,
+        "equity_array_demo": null,
+        "prediction_last_changed_demo": null,
+        "equity_array_last_changed_demo": null,
+        "q6": null,
+        "base_currency": null,
+        "code": null,
+        "lang": null,
+        "note": null,
+        "code_generated_at": null,
+        "ambassador": "0",
+        "referral_rights": "0",
+        "vip_user": "0",
+        "whitelisting_comptete": "0",
+        "whitelist_balance": null,
+        "amount_invested": null,
+        "special_user": "0",
+        "b_user": "0"
     },
     "user_metas": {
         "notify_admin": "0",
@@ -143,5 +210,10 @@
         "pwd_temp": null,
         "email_expire": null,
         "email_token": null
+    },
+    "wallets": {
+        "balanceETH": null,
+        "balanceUSDC": null,
+        "balanceUSDT": null
     }
 }
