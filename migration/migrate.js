@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-fs.readFile('tokenlite.json', 'utf8', async (err, data) => {
+fs.readFile('robotbulls.json', 'utf8', async (err, data) => {
     if (err) {
         console.error('Error reading JSON file:', err);
         return;
