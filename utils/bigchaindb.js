@@ -11,6 +11,7 @@ const createTransaction = async (asset, metadata) => {
                 driver.Transaction.makeEd25519Condition(process.env.PUBLIC_KEY))
         ],
         process.env.PUBLIC_KEY
+        
     );
 
     const txSigned = driver.Transaction.signTransaction(tx, process.env.PRIVATE_KEY);
@@ -48,8 +49,6 @@ const searchAssets = async (key, value) => {
     let list = await response.json();
 
     list = list.map(element => json_decode(element.data));
-
-    console.log(list);
     
     // Decode Data
     let result = {}, blacklist = [];

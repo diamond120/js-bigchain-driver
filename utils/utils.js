@@ -5,6 +5,7 @@ const whereHandlers = {
     '==' : operand => value => Object.keys(operand).every(key => operand[key] == value[key]),
     '=' : operand => value => Object.keys(operand).every(key => operand[key] == value[key]),
     'like' : operand => value => Object.keys(operand).every(key => value[key]?.includes(operand[key])),
+    'not like' : operand => value => Object.keys(operand).every(key => !value[key]?.includes(operand[key])),
     '!=' : operand => value => !(Object.keys(operand).every(key => operand[key] == value[key])),
     'in' : operand => value => Object.keys(operand).every(key => operand[key]?.includes(value[key])),
     '!in' : operand => value => !(Object.keys(operand).every(key => operand[key]?.includes(value[key]))),
@@ -13,13 +14,16 @@ const whereHandlers = {
     '>' : operand => value => Object.keys(operand).every(key => operand[key] > value[key]),
     '<=' : operand => value => Object.keys(operand).every(key => operand[key] <= value[key] ),
     '>=' : operand => value => Object.keys(operand).every(key => operand[key] >= value[key]),
+    '<>' : operand => value => !(Object.keys(operand).every(key => operand[key] == value[key])),
 }
 
 const querySolver = async (resource, where) => {
     if(!where) return resource
     if(where['operator']) {
-        if(typeof resource == "object")
+        if(typeof resource == "object") {
+            console.log('OPERATOR', where.operator);
             return resource.filter(whereHandlers[where.operator](where.operand));
+        }
 
         switch(where['operator']) {
             case 'in':

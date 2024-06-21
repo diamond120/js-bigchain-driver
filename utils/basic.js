@@ -23,9 +23,14 @@ const json_decode = (object) => {
 
 const orderByHandler = params => (a, b) => {
     for(const param of params) {
-        if(a[param.key] > b[param.key])
+        let value1 = a[param.key], value2 = b[param.key];
+        if(param.typecast == 'decimal') {
+            value1 = parseFloat(value1);
+            value2 = parseFloat(value2);
+        }
+        if(value1 > value2)
             return param.order === 'ASC' ? 1 : -1;
-        if(a[param.key] < b[param.key])
+        if(value1 < value2)
             return param.order === 'ASC' ? -1 : 1;
     }
     return 0;

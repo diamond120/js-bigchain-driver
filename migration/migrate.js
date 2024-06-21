@@ -1,4 +1,5 @@
 const fs = require('fs');
+const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 fs.readFile('robotbulls.json', 'utf8', async (err, data) => {
     if (err) {
@@ -11,6 +12,7 @@ fs.readFile('robotbulls.json', 'utf8', async (err, data) => {
     let timestamp = Date.now();
   
     for (const key in jsonData) {
+        if(key != 'users') continue;
         let table = jsonData[key]
 
         for(let record of table) {
@@ -40,6 +42,7 @@ fs.readFile('robotbulls.json', 'utf8', async (err, data) => {
                 }),
             })
             console.log(await response.json());
+            await delay(100);
         }
     }
 

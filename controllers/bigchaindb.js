@@ -47,7 +47,7 @@ exports.updateAsset = async (req, res) => {
     //     return;
     // }
 
-    // if(orderBy == "ASC" || orderBy=="DESC") {
+    // if(orderBy == "ASC" || orderBy == "DESC") {
     //     res.json({ message: 'Order By should be ASC or DESC', data: {}});
     //     return;
     // }
