@@ -14,13 +14,13 @@ exports.createAsset = async (req, res) => {
     //     return;
     // }
 
-    console.log("Create Asset Request: ", object, JSON.stringify(data))
+    console.log("CREATE: ", object, JSON.stringify(data))
 
     // Define Asset
     let asset = {
         'object': object,
         'id': uuidv4(),
-        'created_at': Math.floor(Date.now() / 1000)
+        'created_at': Date.now()
     };
 
     // Add Default Value
@@ -52,11 +52,13 @@ exports.updateAsset = async (req, res) => {
     //     return;
     // }
 
-    console.log("Update Asset Request: ", object, JSON.stringify(where), orderBy, limit, JSON.stringify(data))
+    console.log("UPDATE: ", object, JSON.stringify(where), orderBy, limit, JSON.stringify(data))
 
     // Filter Transactions with condition
     let list = (await queryAsset(object, join, where, orderBy, page, limit)).data;
     let tx_list = []
+
+    console.log(list.length);
 
     for(const tx of list) {
         let asset = {};
@@ -64,12 +66,13 @@ exports.updateAsset = async (req, res) => {
         // Define Assets
         for(const key in tx)
             asset[key] = tx[key];
-        asset['created_at'] = Math.floor(Date.now() / 1000);
 
         // Update data
         for(const key in data)
             asset[key] = data[key];
 
+        asset['created_at'] = Date.now();
+        
         // Send Create Request
         await createTransaction(asset, null);
         tx_list.push(asset)
@@ -82,10 +85,8 @@ exports.getAsset = async (req, res) => {
     let { object, where, orderBy, page, limit, join } = req.query;
     let timestamp = Date.now();
 
-    console.log("Before: ", where);
     if(where) where = decodeURIComponent(where);
-    console.log("After: ", where);
-    
+
     if(typeof where == "string") where = JSON.parse(where);
     if(typeof page == "string") page = parseInt(page);
     if(typeof limit == "string") limit = parseInt(limit);
@@ -103,7 +104,7 @@ exports.getAsset = async (req, res) => {
     //     return;
     // }
 
-    console.log("Get Asset Request: ", object, JSON.stringify(where), orderBy, limit)
+    console.log("GET: ", object, JSON.stringify(where), orderBy, limit)
 
     // Send Query Request
     let list = await queryAsset(object, join, where, orderBy, page, limit);
@@ -122,9 +123,7 @@ exports.getAsset = async (req, res) => {
 exports.countAsset = async (req, res) => {
     let { object, join, where, orderBy, page, limit } = req.query;
     
-    console.log("Before: ", where);
     if(where) where = decodeURIComponent(where);
-    console.log("After: ", where);
 
     if(typeof where == "string") where = JSON.parse(where);
     if(typeof page == "string") page = parseInt(page);
@@ -142,7 +141,7 @@ exports.countAsset = async (req, res) => {
     //     return;
     // }
 
-    console.log("Count Asset Request: ", object, JSON.stringify(where), orderBy, limit)
+    console.log("COUNT: ", object, JSON.stringify(where), orderBy, limit)
 
     // Send Query Request
     let list = await queryAsset(object, join, where, orderBy, page, limit);
@@ -153,9 +152,7 @@ exports.countAsset = async (req, res) => {
 exports.sumAsset = async (req, res) => {
     let { object, join, where, orderBy, page, limit, column } = req.query;
     
-    console.log("Before: ", where);
     if(where) where = decodeURIComponent(where);
-    console.log("After: ", where);
 
     if(typeof where == "string") where = JSON.parse(where);
     if(typeof page == "string") page = parseInt(page);
@@ -173,7 +170,7 @@ exports.sumAsset = async (req, res) => {
     //     return;
     // }
 
-    console.log("Sum Asset Request: ", object, JSON.stringify(where), orderBy, limit, column)
+    console.log("SUM: ", object, JSON.stringify(where), orderBy, limit, column)
 
     // Send Query Request
     let list = (await queryAsset(object, join, where, orderBy, page, limit)).data;
@@ -189,9 +186,7 @@ exports.sumAsset = async (req, res) => {
 exports.deleteAsset = async (req, res) => {
     let { object, join, where, orderBy, page, limit } = req.query;
     
-    console.log("Before: ", where);
     if(where) where = decodeURIComponent(where);
-    console.log("After: ", where);
 
     if(typeof where == "string") where = JSON.parse(where);
     if(typeof page == "string") page = parseInt(page);
@@ -209,7 +204,7 @@ exports.deleteAsset = async (req, res) => {
     //     return;
     // }
 
-    console.log("Delete Asset Request: ", object, JSON.stringify(where), orderBy, limit)
+    console.log("DELETE: ", object, JSON.stringify(where), orderBy, limit)
 
     // Send Query Request
     let list = (await queryAsset(object, join, where, orderBy, page, limit)).data;
