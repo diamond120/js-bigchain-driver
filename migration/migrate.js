@@ -12,14 +12,13 @@ fs.readFile('robotbulls.json', 'utf8', async (err, data) => {
     let timestamp = Date.now();
   
     for (const key in jsonData) {
-        if(key != 'users') continue;
         let table = jsonData[key]
 
         for(let record of table) {
             delete record['uid'];
             delete record['updated_at'];
 
-            record['created_at'] = Math.floor(Date.now() / 1000);
+            record['created_at'] = Date.now();
             record['object'] = key;
 
             // let object = {};
