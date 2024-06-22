@@ -27,7 +27,7 @@ fs.readFile('robotbulls.json', 'utf8', async (err, data) => {
 
             // object['object'] = Buffer.from(JSON.stringify({ object: key })).toString('base64')
 
-            // console.log(object);
+            console.log(JSON.stringify(record));
             // console.log(record)
 
             const response = await fetch('http://localhost:2466/api/transactions', {

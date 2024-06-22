@@ -8,13 +8,13 @@ const createTransaction = async (asset, metadata) => {
         json_encode(asset),
         metadata,
         [ driver.Transaction.makeOutput(
-                driver.Transaction.makeEd25519Condition(process.env.PUBLIC_KEY))
+                driver.Transaction.makeEd25519Condition(process.env.SERVER_PUBLIC_KEY))
         ],
-        process.env.PUBLIC_KEY
+        process.env.SERVER_PUBLIC_KEY
         
     );
 
-    const txSigned = driver.Transaction.signTransaction(tx, process.env.PRIVATE_KEY);
+    const txSigned = driver.Transaction.signTransaction(tx, process.env.SERVER_PRIVATE_KEY);
     const retrievedTx = await conn.postTransactionCommit(txSigned);
 
     return json_decode(retrievedTx.asset.data);

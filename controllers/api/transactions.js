@@ -2,6 +2,9 @@ const { createTransaction, getTransaction } = require('../../utils/bigchaindb');
 
 exports.createTransaction = async (req, res) => {
     const { data, metadata } = req.body;
+
+    console.log('CREATE TRANSACTION', data, metadata);
+
     try {
         const retrievedTx = await createTransaction(data, metadata);
 
